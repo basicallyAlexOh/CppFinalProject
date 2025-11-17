@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build",
+  "command": "/usr/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/SimpleDAW_autogen/include -I/home/alex/Desktop/Classes/cpp_design/CppFinalProject/./include -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -g -fPIC -std=gnu++23 -o CMakeFiles/SimpleDAW.dir/SimpleDAW_autogen/mocs_compilation.cpp.o -c /home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/SimpleDAW_autogen/mocs_compilation.cpp",
+  "file": "/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/SimpleDAW_autogen/mocs_compilation.cpp"
+},
+{
+  "directory": "/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build",
+  "command": "/usr/bin/g++ -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -I/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/SimpleDAW_autogen/include -I/home/alex/Desktop/Classes/cpp_design/CppFinalProject/./include -isystem /usr/include/x86_64-linux-gnu/qt6/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt6 -isystem /usr/include/x86_64-linux-gnu/qt6/QtCore -isystem /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -isystem /usr/include/x86_64-linux-gnu/qt6/QtGui -g -fPIC -std=gnu++23 -o CMakeFiles/SimpleDAW.dir/src/main.cpp.o -c /home/alex/Desktop/Classes/cpp_design/CppFinalProject/src/main.cpp",
+  "file": "/home/alex/Desktop/Classes/cpp_design/CppFinalProject/src/main.cpp"
+}
+]
