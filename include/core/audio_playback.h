@@ -1,7 +1,12 @@
+// import std;
+
+
+// TODO: remove in final compilation
 #include <vector>
 
 
-void play(vector<double> data);
+
+void play(std::vector<double> data);
 
 void pause();
 

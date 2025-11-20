@@ -1,4 +1,0 @@
-/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/CMakeFiles/SimpleDAW.dir
-/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/CMakeFiles/edit_cache.dir
-/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/CMakeFiles/rebuild_cache.dir
-/home/alex/Desktop/Classes/cpp_design/CppFinalProject/build/CMakeFiles/SimpleDAW_autogen.dir
