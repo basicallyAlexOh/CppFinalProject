@@ -32,14 +32,34 @@ class AudioTrack {
         // Move Assignment
         AudioTrack& operator=(AudioTrack&&) = default;
 
+        void reset();
+
+        void disable();
+
+        void enable();
+
+        // TODO: implement
+        void shift_start(double time);
+
         double duration();
 
+        void reverse();
+
+        void adjustSpeed(double ratio);
+
+        void repitch(double factor);
 
 
 
     private:
         int sample_rate;
         int channels;
+
+        double start_time;
+        double end_time;
+
+        bool enabled;
+
         std::vector<double> L;
         std::vector<double> R;
         
