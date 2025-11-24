@@ -5,6 +5,8 @@
 
 class AudioTrack {
     public:
+        friend class TrackManager;
+
         // Default Constructor - creates an empty audio track
         explicit AudioTrack();
 
@@ -17,8 +19,9 @@ class AudioTrack {
 
         explicit AudioTrack(std::vector<int16_t>, std::vector<int16_t>, int sample_rate=44100);
 
-        // Constructor from File Path
-        explicit AudioTrack(std::string filePath);
+        // Construct from moved vector
+        // explicit AudioTrack(std::vector<double>&&, std::vector<double>&&, int sample_rate=44100);
+
 
         // Copy Constructor
         AudioTrack(const AudioTrack&) = default;
@@ -32,6 +35,8 @@ class AudioTrack {
         // Move Assignment
         AudioTrack& operator=(AudioTrack&&) = default;
 
+        double getStartTime() const;
+
         void reset();
 
         void disable();
@@ -41,7 +46,9 @@ class AudioTrack {
         // TODO: implement
         void shift_start(double time);
 
-        double duration();
+        double duration() const;
+
+        size_t numSamples() const;
 
         void reverse();
 
@@ -54,16 +61,13 @@ class AudioTrack {
     private:
         int sample_rate;
         int channels;
-
         double start_time;
-        double end_time;
-
         bool enabled;
 
         std::vector<double> L;
         std::vector<double> R;
         
-        // TODO: consider caching only if changed
+        // TODO: consider caching only if changed?
         std::vector<double> originalL;
         std::vector<double> originalR;
 };

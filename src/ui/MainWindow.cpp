@@ -21,7 +21,7 @@ MainWindow::~MainWindow() = default;
 void MainWindow::setupUI()
 {
     // ---- DEFAULT WINDOW SIZE ----
-    resize(800, 600);   // Or setFixedSize(), or setMinimumSize()7
+    resize(800, 600);   // Or setFixedSize(), or setMinimumSize()
 }
 
 

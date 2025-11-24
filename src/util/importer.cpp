@@ -9,7 +9,7 @@ const std::vector<std::string> analogTypes = {".wav", ".aiff"};
 const std::vector<std::string> digitalTypes = {".mp3"};
 
 
-AudioTrack audioFromFile(const std::string& path)
+AudioTrack* audioFromFile(const std::string& path)
 {
     std::filesystem::path fp(path);
     std::string ext = fp.extension().string();
@@ -27,7 +27,7 @@ AudioTrack audioFromFile(const std::string& path)
 
 
 
-AudioTrack analogAudioFromFile(const std::string& path)
+AudioTrack* analogAudioFromFile(const std::string& path)
 {
     SndfileHandle file(path);
     if (!file || file.error()) {
@@ -60,7 +60,7 @@ AudioTrack analogAudioFromFile(const std::string& path)
             l[i] = r[i] = samples[i];
         }
     }
-    return AudioTrack(l,r,samplerate);  
+    return new AudioTrack(l,r,samplerate);  
 }
 
 
