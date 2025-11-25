@@ -33,17 +33,16 @@ public:
 
     size_t size() const;
 
-    AudioTrack combineAll() const;
+    AudioTrack* combineAll() const;
 
     // combine all audio between start and end - will use for preview
-    AudioTrack combineTimeRange(double start, double end) const;
+    AudioTrack* combineTimeRange(double start, double end) const;
 
 
 private:
     std::vector<trackPtr> tracks;
 
     int sample_rate;
-
 
 
 };
