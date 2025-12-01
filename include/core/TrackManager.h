@@ -1,3 +1,4 @@
+#pragma once
 #include "core/AudioTrack.h"
 #include <vector>
 #include <memory>
@@ -38,6 +39,8 @@ public:
     // combine all audio between start and end - will use for preview
     AudioTrack combineTimeRange(double start, double end) const;
 
+    AudioTrack& track(size_t i)       { return *tracks.at(i); }
+    const AudioTrack& track(size_t i) const { return *tracks.at(i); }
 
 private:
     std::vector<trackPtr> tracks;

@@ -1,3 +1,4 @@
+#pragma once
 #include <sndfile.hh>
 #include <vector>
 #include <stdexcept>

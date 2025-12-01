@@ -1,25 +1,15 @@
-# Add submodules
+# Build the three libraries
 add_subdirectory(core)
-add_subdirectory(ui)
 add_subdirectory(util)
+add_subdirectory(ui)
 
-# Collect main.cpp
-set(SRC_MAIN
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+# Main executable
+add_executable(MyQtApp
+    main.cpp
 )
 
-# Create the executable
-qt_add_executable(MyQtApp
-    ${SRC_MAIN}
-)
-
-# Link against ui/ and util/ libs
-target_link_libraries(MyQtApp PRIVATE
-    UiLayer
-    UtilLayer
-    Qt6::Widgets
-)
-
-target_include_directories(MyQtApp PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
+# Link against UI; UI will pull in Core/Util and Qt via PUBLIC deps
+target_link_libraries(MyQtApp
+    PRIVATE
+        UiLayer
 )

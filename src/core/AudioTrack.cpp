@@ -99,7 +99,7 @@ void AudioTrack::disable(){
 
 double AudioTrack::duration() const 
 {
-    return start_time + sample_rate * L.size();
+    return start_time + static_cast<double>(L.size()) / sample_rate;
 }
 
 size_t AudioTrack::numSamples() const

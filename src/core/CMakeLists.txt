@@ -6,10 +6,12 @@ file(GLOB CORE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
-
-add_library(CoreLayer ${UI_HEADERS} ${UI_SOURCES})
-
-target_include_directories(CoreLayer PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
+add_library(CoreLayer
+    ${CORE_HEADERS}
+    ${CORE_SOURCES}
 )
 
+target_include_directories(CoreLayer
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/include
+)
