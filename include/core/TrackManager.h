@@ -1,3 +1,4 @@
+#pragma once
 #include "core/AudioTrack.h"
 #include <vector>
 #include <memory>
@@ -33,7 +34,7 @@ public:
 
     size_t size() const;
 
-    AudioTrack* combineAll() const;
+    std::unique_ptr<AudioTrack> combineAll() const;
 
     // combine all audio between start and end - will use for preview
     AudioTrack* combineTimeRange(double start, double end) const;

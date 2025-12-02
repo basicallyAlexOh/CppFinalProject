@@ -45,8 +45,8 @@ AudioTrack* analogAudioFromFile(const std::string& path)
         throw std::runtime_error("More than 2 channel audio file");
     }
     
-    std::vector<double> l;
-    std::vector<double> r;
+    std::vector<double> l(frames);
+    std::vector<double> r(frames);
     // libsndfile will convert everything to double automatically
     file.readf(samples.data(), frames);
     

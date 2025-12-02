@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <string>
 #include <numeric>
@@ -56,6 +57,9 @@ class AudioTrack {
 
         void repitch(double factor);
 
+        void normalize(double peak = 0.99);
+
+        void saveToWav(const std::string& path) const;
 
 
     private:

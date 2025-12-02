@@ -13,7 +13,7 @@ TrackManager::TrackManager(int sample_rate) :
 void TrackManager::addTrack(std::string filePath)
 {   
     try {
-        tracks.push_back(std::make_unique<AudioTrack>(audioFromFile(filePath)));
+        tracks.emplace_back(audioFromFile(filePath));
     } catch (std::invalid_argument e) {
         std::cerr << e.what() << std::endl;
     }
@@ -64,7 +64,7 @@ void TrackManager::mergeTrack(size_t ind1, size_t ind2)
     std::transform(r_track2.begin(), r_track2.end(), tracks[ind2]->R.begin(), r_track2.begin(), std::plus<>());
     
     // TODO: i think compiler does move semantics already in optimization, but wonder if we can explicity do it
-    trackPtr tmp = std::make_unique<AudioTrack>(new AudioTrack(l_buffer, r_buffer, sample_rate)); 
+    trackPtr tmp = std::make_unique<AudioTrack>(l_buffer, r_buffer, sample_rate);
     std::swap(tracks[ind1], tmp);
     deleteTrack(ind2);
 }  
@@ -97,7 +97,7 @@ size_t TrackManager::size() const
 }
 
 
-AudioTrack* TrackManager::combineAll() const
+std::unique_ptr<AudioTrack> TrackManager::combineAll() const
 {
     size_t buffer_size = 0;
     for(int i = 0; i < tracks.size(); ++i){
@@ -119,7 +119,10 @@ AudioTrack* TrackManager::combineAll() const
         std::transform(ptr->R.begin(), ptr->R.end(), rsub.begin(), rsub.begin(), std::plus<>()); 
     }
 
-    return new AudioTrack(l_buffer, r_buffer, sample_rate);
+    auto combined = std::make_unique<AudioTrack>(std::move(l_buffer), std::move(r_buffer), sample_rate);
+    combined->normalize();
+    return combined;
+    // return new AudioTrack(l_buffer, r_buffer, sample_rate);
 }
 
 AudioTrack* TrackManager::combineTimeRange(double start, double end) const 
