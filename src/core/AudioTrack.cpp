@@ -3,6 +3,8 @@
 #include "util/importer.h"
 #include <algorithm>
 #include <string>
+#include <ranges>
+#include <sndfile.hh>
 
 AudioTrack::AudioTrack() : 
     sample_rate(44100), 
@@ -120,4 +122,46 @@ void AudioTrack::adjustSpeed(double ratio){
 void AudioTrack::repitch(double factor) {
     adjust_pitch(L, factor);
     adjust_pitch(R, factor);
+}
+
+void AudioTrack::normalize(double peak) {
+    double maxAmp = 0.0;
+
+    for (size_t i = 0; i < L.size(); ++i) {
+        maxAmp = std::max(maxAmp, std::abs(L[i]));
+        maxAmp = std::max(maxAmp, std::abs(R[i]));
+    }
+
+    // Scale volume down if combined amplitude is too loud
+    if (maxAmp > peak) {
+        double scale = peak / maxAmp;
+
+        for (auto [l, r] : std::views::zip(L, R)) {
+            l *= scale;
+            r *= scale;
+        }
+    }
+}
+
+void AudioTrack::saveToWav(const std::string& path) const {
+    SF_INFO info{};
+    info.channels = 2;
+    info.samplerate = sample_rate;
+    info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+
+    SndfileHandle out(path, SFM_WRITE, info.format, info.channels, info.samplerate);
+    if (!out) {
+        throw std::runtime_error("Could not write WAV file: " + path);
+    }
+
+    const std::size_t frames = L.size();
+    std::vector<double> interleaved;
+    interleaved.reserve(frames * 2);
+
+    for (auto [l, r] : std::views::zip(L, R)) {
+        interleaved.push_back(l);
+        interleaved.push_back(r);
+    }
+
+    out.writef(interleaved.data(), L.size());
 }

@@ -13,12 +13,12 @@ void adjust_speed(std::vector<double>& audio, double ratio)
 }
 
 
-void adjust_speed_resample(std::vector<double>&, double ratio)
+void adjust_speed_resample(std::vector<double>& audio, double ratio)
 {
     // TODO: implement this
 }
 
-void adjust_pitch(std::vector<double>, double semitones)
+void adjust_pitch(std::vector<double>& audio, double semitones)
 {
 
 }
