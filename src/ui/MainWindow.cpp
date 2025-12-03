@@ -13,10 +13,10 @@
 #include <QMessageBox>
 #include <QDebug>
 
-#include <algorithm>   // std::swap
+#include <algorithm>   //std::swap
 #include <stdexcept>
 
-// Small helper for single selection
+//Small helper for single selection
 static bool getSingleSelection(QListWidget *list, int &index)
 {
     index = list->currentRow();
@@ -25,7 +25,7 @@ static bool getSingleSelection(QListWidget *list, int &index)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , manager(44100)    // or whatever sample rate you want
+    , manager(44100)    //or whatever sample rate you want
 {
     setWindowTitle("Simple DAW");
     setupUI();
@@ -87,7 +87,7 @@ void MainWindow::createCentralWidget()
     central->setLayout(mainLayout);
     setCentralWidget(central);
 
-    // Connect buttons to actions
+    //Connect buttons to actions
     connect(reverseBtn, &QPushButton::clicked, this, &MainWindow::reverseTrack);
     connect(speedBtn,   &QPushButton::clicked, this, &MainWindow::speedTrack);
     connect(pitchBtn,   &QPushButton::clicked, this, &MainWindow::pitchTrack);
@@ -99,12 +99,12 @@ void MainWindow::refreshTrackList()
 {
     trackList->clear();
     for (std::size_t i = 0; i < manager.size(); ++i) {
-        // Later you can use filenames or something more descriptive
+        //Later you can use filenames or something more descriptive
         trackList->addItem(QString("Track %1").arg(i));
     }
 }
 
-// ===== File operations =====
+//File operations
 
 void MainWindow::openFile()
 {
@@ -112,7 +112,7 @@ void MainWindow::openFile()
         this,
         "Open audio file",
         QString(),
-        // adjust filter to match what your importer supports
+        //adjust filter to match what your importer supports
         "Audio Files (*.wav *.aiff *.mp3);;All Files (*)"
     );
     if (path.isEmpty())
@@ -173,7 +173,7 @@ void MainWindow::saveMix()
         return;
 
     try {
-        // combineAll returns std::unique_ptr<AudioTrack>
+        //combineAll returns std::unique_ptr<AudioTrack>
         std::unique_ptr<AudioTrack> mix = manager.combineAll();
         if (!mix) {
             QMessageBox::warning(this, "Error", "combineAll() returned null.");
@@ -189,7 +189,7 @@ void MainWindow::saveMix()
     }
 }
 
-// ===== Editing operations =====
+//diting operations
 
 void MainWindow::reverseTrack()
 {
