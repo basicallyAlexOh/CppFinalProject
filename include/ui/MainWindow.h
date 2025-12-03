@@ -5,43 +5,53 @@
 
 class QListWidget;
 class QPushButton;
+class QMenu;
+class QAction;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr) ;
-    ~MainWindow() ;
-
-private slots:
-    void openFile();        // File → Open…
-    void reverseTrack();    // Reverse selected track
-    void speedTrack();      // Change speed
-    void pitchTrack();      // Change pitch
-    void deleteTrack();     // Delete selected
-    void mergeTracks();     // Merge two selected tracks
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow() override;
 
 private:
+    // UI helpers
     void setupUI();
     void createMenus();
     void createCentralWidget();
     void refreshTrackList();
 
-    // Model
-    TrackManager manager{44100};
+    // Actions / slots
+    void openFile();
+    void saveSelectedTrack();
+    void saveMix();
 
-    // Menu items
-    QMenu*  fileMenu   = nullptr;
-    QAction* openAction = nullptr;
-    QAction* quitAction = nullptr;
+    void reverseTrack();
+    void speedTrack();
+    void pitchTrack();
+    void deleteTrack();
+    void mergeTracks();
 
-    // Central widgets
-    QWidget*    central    = nullptr;
-    QListWidget* trackList = nullptr;
-    QPushButton* reverseBtn = nullptr;
-    QPushButton* speedBtn   = nullptr;
-    QPushButton* pitchBtn   = nullptr;
-    QPushButton* deleteBtn  = nullptr;
-    QPushButton* mergeBtn   = nullptr;
+    // Data
+    TrackManager manager;
+
+    // Widgets
+    QListWidget *trackList = nullptr;
+
+    QPushButton *reverseBtn = nullptr;
+    QPushButton *speedBtn   = nullptr;
+    QPushButton *pitchBtn   = nullptr;
+    QPushButton *deleteBtn  = nullptr;
+    QPushButton *mergeBtn   = nullptr;
+
+    QWidget *central = nullptr;
+
+    // Menus / actions
+    QMenu   *fileMenu        = nullptr;
+    QAction *openAction      = nullptr;
+    QAction *saveTrackAction = nullptr;
+    QAction *saveMixAction   = nullptr;
+    QAction *quitAction      = nullptr;
 };
-

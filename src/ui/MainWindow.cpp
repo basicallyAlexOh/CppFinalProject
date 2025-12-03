@@ -4,16 +4,28 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QListWidget>
 #include <QPushButton>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QMessageBox>
+#include <QDebug>
+
+#include <algorithm>   // std::swap
+#include <stdexcept>
+
+// Small helper for single selection
+static bool getSingleSelection(QListWidget *list, int &index)
+{
+    index = list->currentRow();
+    return index >= 0;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , manager(44100)    // or whatever sample rate you want
 {
     setWindowTitle("Simple DAW");
     setupUI();
@@ -28,24 +40,29 @@ void MainWindow::setupUI()
     resize(1000, 600);
 }
 
-
-void MainWindow::createMenus() {
+void MainWindow::createMenus()
+{
     fileMenu = menuBar()->addMenu("&File");
 
-    openAction = new QAction("Open…", this);
-    quitAction = new QAction("Quit", this);
+    openAction      = new QAction("Open…", this);
+    saveTrackAction = new QAction("Save Selected Track…", this);
+    saveMixAction   = new QAction("Save Mix (All Tracks)…", this);
+    quitAction      = new QAction("Quit", this);
 
     fileMenu->addAction(openAction);
+    fileMenu->addAction(saveTrackAction);
+    fileMenu->addAction(saveMixAction);
     fileMenu->addSeparator();
     fileMenu->addAction(quitAction);
 
-    connect(openAction, &QAction::triggered,
-            this, &MainWindow::openFile);
-    connect(quitAction, &QAction::triggered,
-            qApp, &QApplication::quit);
+    connect(openAction,      &QAction::triggered, this, &MainWindow::openFile);
+    connect(saveTrackAction, &QAction::triggered, this, &MainWindow::saveSelectedTrack);
+    connect(saveMixAction,   &QAction::triggered, this, &MainWindow::saveMix);
+    connect(quitAction,      &QAction::triggered, qApp, &QApplication::quit);
 }
 
-void MainWindow::createCentralWidget() {
+void MainWindow::createCentralWidget()
+{
     trackList = new QListWidget(this);
 
     reverseBtn = new QPushButton("Reverse", this);
@@ -70,7 +87,7 @@ void MainWindow::createCentralWidget() {
     central->setLayout(mainLayout);
     setCentralWidget(central);
 
-    // Connect buttons
+    // Connect buttons to actions
     connect(reverseBtn, &QPushButton::clicked, this, &MainWindow::reverseTrack);
     connect(speedBtn,   &QPushButton::clicked, this, &MainWindow::speedTrack);
     connect(pitchBtn,   &QPushButton::clicked, this, &MainWindow::pitchTrack);
@@ -78,20 +95,24 @@ void MainWindow::createCentralWidget() {
     connect(mergeBtn,   &QPushButton::clicked, this, &MainWindow::mergeTracks);
 }
 
-void MainWindow::refreshTrackList() {
+void MainWindow::refreshTrackList()
+{
     trackList->clear();
-    for (size_t i = 0; i < manager.size(); ++i) {
-        // For now, just display “Track N”
-        // (You can store filenames in TrackManager later.)
+    for (std::size_t i = 0; i < manager.size(); ++i) {
+        // Later you can use filenames or something more descriptive
         trackList->addItem(QString("Track %1").arg(i));
     }
 }
 
-void MainWindow::openFile() {
+// ===== File operations =====
+
+void MainWindow::openFile()
+{
     QString path = QFileDialog::getOpenFileName(
         this,
         "Open audio file",
         QString(),
+        // adjust filter to match what your importer supports
         "Audio Files (*.wav *.aiff *.mp3);;All Files (*)"
     );
     if (path.isEmpty())
@@ -101,68 +122,140 @@ void MainWindow::openFile() {
         manager.addTrack(path.toStdString());
         refreshTrackList();
     } catch (const std::exception &e) {
-        // You can show a QMessageBox here
-        qWarning("Failed to open file: %s", e.what());
+        QMessageBox::warning(
+            this,
+            "Error",
+            QString("Failed to open file:\n%1").arg(e.what())
+        );
     }
 }
 
-static bool getSingleSelection(QListWidget* list, int& index) {
-    index = list->currentRow();
-    return index >= 0;
+void MainWindow::saveSelectedTrack()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx))
+        return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size())
+        return;
+
+    QString path = QFileDialog::getSaveFileName(
+        this,
+        "Save selected track as WAV",
+        QString(),
+        "WAV files (*.wav);;All Files (*)"
+    );
+    if (path.isEmpty())
+        return;
+
+    try {
+        manager.track(static_cast<std::size_t>(idx)).saveToWav(path.toStdString());
+    } catch (const std::exception &e) {
+        QMessageBox::warning(
+            this,
+            "Error",
+            QString("Failed to save track:\n%1").arg(e.what())
+        );
+    }
 }
 
-void MainWindow::reverseTrack() {
-    int idx;
-    if (!getSingleSelection(trackList, idx)) return;
-    if (idx >= static_cast<int>(manager.size())) return;
+void MainWindow::saveMix()
+{
+    if (manager.size() == 0)
+        return;
 
-    manager.track(idx).reverse();
+    QString path = QFileDialog::getSaveFileName(
+        this,
+        "Save mix (all tracks) as WAV",
+        QString(),
+        "WAV files (*.wav);;All Files (*)"
+    );
+    if (path.isEmpty())
+        return;
+
+    try {
+        // combineAll returns std::unique_ptr<AudioTrack>
+        std::unique_ptr<AudioTrack> mix = manager.combineAll();
+        if (!mix) {
+            QMessageBox::warning(this, "Error", "combineAll() returned null.");
+            return;
+        }
+        mix->saveToWav(path.toStdString());
+    } catch (const std::exception &e) {
+        QMessageBox::warning(
+            this,
+            "Error",
+            QString("Failed to save mix:\n%1").arg(e.what())
+        );
+    }
 }
 
-void MainWindow::speedTrack() {
+// ===== Editing operations =====
+
+void MainWindow::reverseTrack()
+{
     int idx;
     if (!getSingleSelection(trackList, idx)) return;
-    if (idx >= static_cast<int>(manager.size())) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
+
+    manager.track(static_cast<std::size_t>(idx)).reverse();
+}
+
+void MainWindow::speedTrack()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx)) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
 
     bool ok = false;
     double ratio = QInputDialog::getDouble(
         this,
         "Change speed",
         "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
-        1.0, 0.1, 8.0, 2, &ok
+        1.0,      // default
+        0.1,      // min
+        8.0,      // max
+        2,        // decimals
+        &ok
     );
     if (!ok) return;
 
-    manager.track(idx).adjustSpeed(ratio);
+    manager.track(static_cast<std::size_t>(idx)).adjustSpeed(ratio);
 }
 
-void MainWindow::pitchTrack() {
+void MainWindow::pitchTrack()
+{
     int idx;
     if (!getSingleSelection(trackList, idx)) return;
-    if (idx >= static_cast<int>(manager.size())) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
 
     bool ok = false;
     double semitones = QInputDialog::getDouble(
         this,
         "Change pitch",
         "Semitones (+12 = one octave up, -12 = down):",
-        0.0, -24.0, 24.0, 1, &ok
+        0.0,     // default
+        -24.0,   // min
+        24.0,    // max
+        1,       // decimals
+        &ok
     );
     if (!ok) return;
 
-    manager.track(idx).repitch(semitones);
+    manager.track(static_cast<std::size_t>(idx)).repitch(semitones);
 }
 
-void MainWindow::deleteTrack() {
+void MainWindow::deleteTrack()
+{
     int idx;
     if (!getSingleSelection(trackList, idx)) return;
-    if (idx >= static_cast<int>(manager.size())) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
 
-    manager.deleteTrack(static_cast<size_t>(idx));
+    manager.deleteTrack(static_cast<std::size_t>(idx));
     refreshTrackList();
 }
 
-void MainWindow::mergeTracks() {
+void MainWindow::mergeTracks()
+{
     auto selected = trackList->selectedItems();
     if (selected.size() != 2) return;
 
@@ -170,8 +263,13 @@ void MainWindow::mergeTracks() {
     int idx2 = trackList->row(selected[1]);
     if (idx1 == idx2) return;
 
-    if (idx1 > idx2) std::swap(idx1, idx2);
-    manager.mergeTrack(static_cast<size_t>(idx1),
-                       static_cast<size_t>(idx2));
+    if (idx1 > idx2)
+        std::swap(idx1, idx2);
+
+    if (idx1 < 0 || idx2 < 0) return;
+    if (static_cast<std::size_t>(idx2) >= manager.size()) return;
+
+    manager.mergeTrack(static_cast<std::size_t>(idx1),
+                       static_cast<std::size_t>(idx2));
     refreshTrackList();
 }

@@ -30,7 +30,7 @@ void adjust_speed(std::vector<double>& audio, double ratio)
         out.push_back(audio[src_idx]); // nearest neighbor
     }
 
-    audio.swap(out); // in-place update for the caller
+    audio.swap(out); //in-place update for the caller
 }
 
 
@@ -61,7 +61,7 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
         const double s0   = audio[i0];
         const double s1   = audio[i0 + 1];
 
-        // Linear interpolation between s0 and s1
+        //Linear interpolation between s0 and s1
         out.push_back(std::lerp(s0, s1, frac));
     }
 
@@ -70,25 +70,25 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
 
 void adjust_pitch(std::vector<double>& audio, double semitones)
 {
-    // need a size to work with.
+    //need a size to work with.
     if (audio.size() < 2) {
         return;
     }
 
     if (std::abs(semitones) < std::numeric_limits<double>::epsilon()) {
-        return; // semitones is machine episilon, nothing to do so return
+        return; //semitones is machine episilon, nothing to do so return
     }
 
-    // Convert semitones to a speed ratio:
-    // +12 semitones = 1 octave up = 2x frequency → 2x speed
+    //Convert semitones to a speed ratio:
+    //+12 semitones = 1 octave up = 2x frequency → 2x speed
     constexpr double semitones_per_octave = 12.0;
     const double ratio = std::pow(2.0, semitones / semitones_per_octave);
 
     if (!std::isfinite(ratio) || ratio <= 0.0) {
-        return; // defensive: guard against nonsense inputs
+        return; //defensive: guard against nonsense inputs
     }
 
-    // In this simple version, pitch shift is implemented
-    // as a speed change: pitch and duration change together.
+    //In this simple version, pitch shift is implemented
+    //as a speed change: pitch and duration change together.
     adjust_speed_resample(audio, ratio);
 }
