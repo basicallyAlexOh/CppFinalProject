@@ -19,6 +19,6 @@ target_include_directories(UiLayer
 target_link_libraries(UiLayer
     PUBLIC
         Qt6::Widgets
-        //CoreLayer
-        //UtilLayer
+        CoreLayer
+        UtilLayer
 )

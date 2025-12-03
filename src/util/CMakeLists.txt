@@ -10,6 +10,10 @@ add_library(UtilLayer
     ${UTIL_HEADERS}
     ${UTIL_SOURCES}
 )
+target_link_libraries(UtilLayer
+    PUBLIC
+        sndfile
+)
 
 target_include_directories(UtilLayer
     PUBLIC
