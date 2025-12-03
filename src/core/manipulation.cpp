@@ -58,8 +58,8 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
         }
 
         const double frac = src_pos - static_cast<double>(i0);
-        const double s0   = audio[i0];
-        const double s1   = audio[i0 + 1];
+        const double s0 = audio[i0];
+        const double s1 = audio[i0 + 1];
 
         //Linear interpolation between s0 and s1
         out.push_back(std::lerp(s0, s1, frac));
