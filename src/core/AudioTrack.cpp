@@ -119,6 +119,11 @@ void AudioTrack::adjustSpeed(double ratio){
     adjust_speed(R, ratio);
 }
 
+void AudioTrack::adjustSpeed_resample(double ratio){
+    adjust_speed_resample(L, ratio);
+    adjust_speed_resample(R, ratio);
+} 
+
 void AudioTrack::repitch(double factor) {
     adjust_pitch(L, factor);
     adjust_pitch(R, factor);

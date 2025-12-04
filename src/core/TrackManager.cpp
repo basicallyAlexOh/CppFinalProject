@@ -14,19 +14,21 @@ void TrackManager::addTrack(std::string filePath)
 {   
     try {
         tracks.emplace_back(audioFromFile(filePath));
-    } catch (std::invalid_argument e) {
+    } catch (const std::invalid_argument& e) {
         std::cerr << e.what() << std::endl;
     }
 }
 
-void TrackManager::reorderTrack(size_t curInd, size_t newInd)
+void TrackManager::reorderTrack(std::size_t curInd, std::size_t newInd)
 {
-    if(newInd > size()) newInd = size();
+    if(newInd > size()) newInd = size() - 1;
+    if (curInd == newInd) return;
+
     if(curInd < newInd){
-        for(int i = curInd; i < newInd; ++i)
+        for(std::size_t i = curInd; i < newInd; ++i)
             std::swap(tracks[i], tracks[i+1]);
     } else {
-        for(int i = curInd; i > newInd; --i)
+        for(std::size_t i = curInd; i > newInd; --i)
             std::swap(tracks[i], tracks[i-1]);
     }
 }
@@ -99,9 +101,10 @@ size_t TrackManager::size() const
 
 std::unique_ptr<AudioTrack> TrackManager::combineAll() const
 {
-    size_t buffer_size = 0;
-    for(int i = 0; i < tracks.size(); ++i){
-        size_t start_ind = tracks[i]->getStartTime() * sample_rate;
+    std::size_t buffer_size = 0;
+    for(std::size_t i = 0; i < tracks.size(); ++i){
+        auto start_ind = static_cast<std::size_t>(
+            std::round(tracks[i]->getStartTime() * sample_rate));
         buffer_size = std::max(buffer_size, start_ind + tracks[i]->numSamples());
     }
 

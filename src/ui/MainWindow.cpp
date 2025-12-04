@@ -67,6 +67,7 @@ void MainWindow::createCentralWidget()
 
     reverseBtn = new QPushButton("Reverse", this);
     speedBtn   = new QPushButton("Speed…", this);
+    resampleBtn= new QPushButton("Speed Resample", this);
     pitchBtn   = new QPushButton("Pitch…", this);
     deleteBtn  = new QPushButton("Delete", this);
     mergeBtn   = new QPushButton("Merge 2", this);
@@ -74,6 +75,7 @@ void MainWindow::createCentralWidget()
     auto *buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(reverseBtn);
     buttonLayout->addWidget(speedBtn);
+    buttonLayout->addWidget(resampleBtn);
     buttonLayout->addWidget(pitchBtn);
     buttonLayout->addWidget(deleteBtn);
     buttonLayout->addWidget(mergeBtn);
@@ -90,6 +92,7 @@ void MainWindow::createCentralWidget()
     //Connect buttons to actions
     connect(reverseBtn, &QPushButton::clicked, this, &MainWindow::reverseTrack);
     connect(speedBtn,   &QPushButton::clicked, this, &MainWindow::speedTrack);
+    connect(resampleBtn,&QPushButton::clicked, this, &MainWindow::speedResampleTrack);
     connect(pitchBtn,   &QPushButton::clicked, this, &MainWindow::pitchTrack);
     connect(deleteBtn,  &QPushButton::clicked, this, &MainWindow::deleteTrack);
     connect(mergeBtn,   &QPushButton::clicked, this, &MainWindow::mergeTracks);
@@ -220,6 +223,28 @@ void MainWindow::speedTrack()
     if (!ok) return;
 
     manager.track(static_cast<std::size_t>(idx)).adjustSpeed(ratio);
+}
+
+void MainWindow::speedResampleTrack()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx)) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
+
+    bool ok = false;
+    double ratio = QInputDialog::getDouble(
+        this,
+        "Change speed and resample",
+        "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
+        1.0,      // default
+        0.1,      // min
+        8.0,      // max
+        2,        // decimals
+        &ok
+    );
+    if (!ok) return;
+
+    manager.track(static_cast<std::size_t>(idx)).adjustSpeed_resample(ratio);
 }
 
 void MainWindow::pitchTrack()

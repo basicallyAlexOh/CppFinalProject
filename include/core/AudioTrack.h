@@ -55,6 +55,8 @@ class AudioTrack {
 
         void adjustSpeed(double ratio);
 
+        void adjustSpeed_resample(double ratio);
+
         void repitch(double factor);
 
         void normalize(double peak = 0.99);
