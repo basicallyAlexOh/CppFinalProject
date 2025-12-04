@@ -57,6 +57,8 @@ class AudioTrack {
 
         void adjustSpeed_resample(double ratio);
 
+        void adjustSpeed_nodistort(double ratio);
+
         void repitch(double semitones);
 
         void normalize(double peak = 0.99);

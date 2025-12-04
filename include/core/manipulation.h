@@ -11,5 +11,7 @@ void adjust_speed(std::vector<double>&, double ratio);
 
 void adjust_speed_resample(std::vector<double>&, double ratio);
 
+void adjust_speed_nodistort(std::vector<double>&, double ratio);
 
 void adjust_pitch(std::vector<double>&, double semitones);
+
