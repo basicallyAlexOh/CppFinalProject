@@ -65,6 +65,8 @@ void MainWindow::createCentralWidget()
 {
     trackList = new QListWidget(this);
 
+    trackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
     reverseBtn = new QPushButton("Reverse", this);
     speedBtn   = new QPushButton("Speed…", this);
     resampleBtn= new QPushButton("Speed Resample", this);
