@@ -45,19 +45,22 @@ void MainWindow::createMenus()
     fileMenu = menuBar()->addMenu("&File");
 
     openAction      = new QAction("Open…", this);
-    saveTrackAction = new QAction("Save Selected Track…", this);
-    saveMixAction   = new QAction("Save Mix (All Tracks)…", this);
+    saveTrackAction = new QAction("Save Selected Track", this);
+    saveMixAction   = new QAction("Save Mix (All Tracks)", this);
+    saveRange       = new QAction("Save Mix Range (All Tracks)", this);
     quitAction      = new QAction("Quit", this);
 
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveTrackAction);
     fileMenu->addAction(saveMixAction);
+    fileMenu->addAction(saveRange);
     fileMenu->addSeparator();
     fileMenu->addAction(quitAction);
 
     connect(openAction,      &QAction::triggered, this, &MainWindow::openFile);
     connect(saveTrackAction, &QAction::triggered, this, &MainWindow::saveSelectedTrack);
     connect(saveMixAction,   &QAction::triggered, this, &MainWindow::saveMix);
+    connect(saveRange,       &QAction::triggered, this, &MainWindow::saveMixRange);
     connect(quitAction,      &QAction::triggered, qApp, &QApplication::quit);
 }
 
@@ -68,9 +71,9 @@ void MainWindow::createCentralWidget()
     trackList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     reverseBtn = new QPushButton("Reverse", this);
-    speedBtn   = new QPushButton("Speed…", this);
+    speedBtn   = new QPushButton("Speed", this);
     resampleBtn= new QPushButton("Speed Resample", this);
-    pitchBtn   = new QPushButton("Pitch…", this);
+    pitchBtn   = new QPushButton("Pitch", this);
     deleteBtn  = new QPushButton("Delete", this);
     mergeBtn   = new QPushButton("Merge 2", this);
 
@@ -193,6 +196,65 @@ void MainWindow::saveMix()
         );
     }
 }
+
+void MainWindow::saveMixRange()
+{
+    if (manager.size() == 0)
+        return;
+
+    bool okStart = false, okEnd = false;
+    double start = QInputDialog::getDouble(
+        this,
+        "Start time",
+        "Start (seconds):",
+        0.0,
+        0.0,
+        1e9,
+        3,
+        &okStart
+    );
+    if (!okStart)
+        return;
+
+    double end = QInputDialog::getDouble(
+        this,
+        "End time",
+        "End (seconds):",
+        start,
+        0.0,
+        1e9,
+        3,
+        &okEnd
+    );
+    if (!okEnd || end <= start)
+        return;
+
+    QString path = QFileDialog::getSaveFileName(
+        this,
+        "Save time range (all tracks) as WAV",
+        QString(),
+        "WAV files (*.wav);;All Files (*)"
+    );
+    if (path.isEmpty())
+        return;
+
+    try {
+        std::unique_ptr<AudioTrack> mix(manager.combineTimeRange(start, end));
+        if (!mix) {
+            QMessageBox::warning(this, "Error", "combineTimeRange() returned null.");
+            return;
+        }
+
+        mix->saveToWav(path.toStdString());
+    } catch (const std::exception &e) {
+        QMessageBox::warning(
+            this,
+            "Error",
+            QString("Failed to save time-range mix:\n%1").arg(e.what())
+        );
+    }
+}
+
 
 //diting operations
 

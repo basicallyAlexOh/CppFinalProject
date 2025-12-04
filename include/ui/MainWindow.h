@@ -27,6 +27,7 @@ private:
     void openFile();
     void saveSelectedTrack();
     void saveMix();
+    void saveMixRange();
 
     void reverseTrack();
     void speedTrack();
@@ -55,5 +56,6 @@ private:
     QAction *openAction      = nullptr;
     QAction *saveTrackAction = nullptr;
     QAction *saveMixAction   = nullptr;
+    QAction *saveRange       = nullptr;
     QAction *quitAction      = nullptr;
 };
