@@ -12,6 +12,9 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QDebug>
+#include <QDoubleSpinBox>
+#include <QLabel>
+#include <QFormLayout>
 
 #include <algorithm>
 #include <stdexcept>
