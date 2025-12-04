@@ -42,10 +42,18 @@ public:
     AudioTrack& track(size_t i)       { return *tracks.at(i); }
     const AudioTrack& track(size_t i) const { return *tracks.at(i); }
 
+    // expose timing info
+    double startTime(std::size_t i) const;
+    double duration(std::size_t i) const;
+    void setStartTime(std::size_t i, double start);
+
+    const std::string& trackName(std::size_t i) const;
+    void setTrackName(std::size_t i, std::string name);
+
 private:
     std::vector<trackPtr> tracks;
 
     int sample_rate;
 
-
+    std::vector<std::string> names;
 };

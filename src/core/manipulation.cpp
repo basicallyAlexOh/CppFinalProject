@@ -70,7 +70,7 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
     audio.swap(out); // in-place update for the caller
 }
 
-void adjustSpeed_nodistort(std::vector<double>& audio, double ratio)
+void adjust_speed_nodistort(std::vector<double>& audio, double ratio)
 {
     audio = pv_time_stretch_mono(audio, ratio);
 }

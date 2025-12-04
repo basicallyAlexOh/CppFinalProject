@@ -4,6 +4,7 @@
 #include <cmath>
 #include <span>
 #include <algorithm>
+#include <filesystem>
 
 TrackManager::TrackManager(int sample_rate) :
     sample_rate(sample_rate)
@@ -14,6 +15,9 @@ void TrackManager::addTrack(std::string filePath)
 {   
     try {
         tracks.emplace_back(audioFromFile(filePath));
+
+        std::filesystem::path p(filePath);
+        names.push_back(p.stem().string());
     } catch (const std::invalid_argument& e) {
         std::cerr << e.what() << std::endl;
     }
@@ -25,17 +29,23 @@ void TrackManager::reorderTrack(std::size_t curInd, std::size_t newInd)
     if (curInd == newInd) return;
 
     if(curInd < newInd){
-        for(std::size_t i = curInd; i < newInd; ++i)
+        for(std::size_t i = curInd; i < newInd; ++i) {
             std::swap(tracks[i], tracks[i+1]);
-    } else {
-        for(std::size_t i = curInd; i > newInd; --i)
+            std::swap(names[i], names[i + 1]);
+        }
+    } 
+    else {
+        for(std::size_t i = curInd; i > newInd; --i) {
             std::swap(tracks[i], tracks[i-1]);
+            std::swap(names[i], names[i - 1]);
+        }
     }
 }
 
 void TrackManager::deleteTrack(size_t ind)
 {
     tracks.erase(tracks.begin() + ind);
+    names.erase(names.begin() + ind);
 }
 
 void TrackManager::mergeTrack(size_t ind1, size_t ind2)
@@ -68,9 +78,21 @@ void TrackManager::mergeTrack(size_t ind1, size_t ind2)
     // TODO: i think compiler does move semantics already in optimization, but wonder if we can explicity do it
     trackPtr tmp = std::make_unique<AudioTrack>(l_buffer, r_buffer, sample_rate);
     std::swap(tracks[ind1], tmp);
+    std::string mergedName = names[ind1] + " + " + names[ind2];
     deleteTrack(ind2);
+    names[ind1] = std::move(mergedName);
 }  
 
+// thin API to expose them to GUI
+double TrackManager::startTime(std::size_t i) const
+{
+    return tracks.at(i)->getStartTime();
+}
+
+double TrackManager::duration(std::size_t i) const
+{
+    return tracks.at(i)->duration();
+}
 
 inline TrackManager::iterator TrackManager::begin()
 {
@@ -98,6 +120,15 @@ size_t TrackManager::size() const
     return tracks.size();
 }
 
+const std::string& TrackManager::trackName(std::size_t i) const
+{
+    return names.at(i);
+}
+
+void TrackManager::setTrackName(std::size_t i, std::string name)
+{
+    names.at(i) = std::move(name);
+}
 
 std::unique_ptr<AudioTrack> TrackManager::combineAll() const
 {

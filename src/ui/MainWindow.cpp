@@ -13,7 +13,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
-#include <algorithm>   //std::swap
+#include <algorithm>
 #include <stdexcept>
 
 //Small helper for single selection
@@ -44,7 +44,7 @@ void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu("&File");
 
-    openAction      = new QAction("Open…", this);
+    openAction      = new QAction("Open", this);
     saveTrackAction = new QAction("Save Selected Track", this);
     saveMixAction   = new QAction("Save Mix (All Tracks)", this);
     saveRange       = new QAction("Save Mix Range (All Tracks)", this);
@@ -73,6 +73,7 @@ void MainWindow::createCentralWidget()
     reverseBtn = new QPushButton("Reverse", this);
     speedBtn   = new QPushButton("Speed", this);
     resampleBtn= new QPushButton("Speed Resample", this);
+    nodistortBtn=new QPushButton("Speed Resample No Distort", this);
     pitchBtn   = new QPushButton("Pitch", this);
     deleteBtn  = new QPushButton("Delete", this);
     mergeBtn   = new QPushButton("Merge 2", this);
@@ -81,6 +82,7 @@ void MainWindow::createCentralWidget()
     buttonLayout->addWidget(reverseBtn);
     buttonLayout->addWidget(speedBtn);
     buttonLayout->addWidget(resampleBtn);
+    buttonLayout->addWidget(nodistortBtn);
     buttonLayout->addWidget(pitchBtn);
     buttonLayout->addWidget(deleteBtn);
     buttonLayout->addWidget(mergeBtn);
@@ -94,10 +96,11 @@ void MainWindow::createCentralWidget()
     central->setLayout(mainLayout);
     setCentralWidget(central);
 
-    //Connect buttons to actions
+    // Connect buttons to actions
     connect(reverseBtn, &QPushButton::clicked, this, &MainWindow::reverseTrack);
     connect(speedBtn,   &QPushButton::clicked, this, &MainWindow::speedTrack);
     connect(resampleBtn,&QPushButton::clicked, this, &MainWindow::speedResampleTrack);
+    connect(nodistortBtn,&QPushButton::clicked, this, &MainWindow::speedNoDistort);
     connect(pitchBtn,   &QPushButton::clicked, this, &MainWindow::pitchTrack);
     connect(deleteBtn,  &QPushButton::clicked, this, &MainWindow::deleteTrack);
     connect(mergeBtn,   &QPushButton::clicked, this, &MainWindow::mergeTracks);
@@ -107,39 +110,61 @@ void MainWindow::refreshTrackList()
 {
     trackList->clear();
     for (std::size_t i = 0; i < manager.size(); ++i) {
-        //Later you can use filenames or something more descriptive
-        trackList->addItem(QString("Track %1").arg(i));
+        QString name = QString::fromStdString(manager.trackName(i));
+        double start = manager.startTime(i);
+        double duration = manager.duration(i);
+
+        QString label = QString("%1 (start = %2s, duration = %3s)")
+                            .arg(name)
+                            .arg(start, 0, 'f', 2)
+                            .arg(duration, 0, 'f', 2);
+        trackList->addItem(label);
     }
 }
 
-//File operations
+// File operations
 
 void MainWindow::openFile()
 {
-    QString path = QFileDialog::getOpenFileName(
+    QStringList paths = QFileDialog::getOpenFileNames(
         this,
-        "Open audio file",
+        "Open audio files",
         QString(),
-        //adjust filter to match what your importer supports
         "Audio Files (*.wav *.aiff *.mp3);;All Files (*)"
     );
-    if (path.isEmpty())
+    if (paths.isEmpty())
         return;
 
-    try {
-        manager.addTrack(path.toStdString());
-        refreshTrackList();
-    } catch (const std::exception &e) {
-        QMessageBox::warning(
-            this,
-            "Error",
-            QString("Failed to open file:\n%1").arg(e.what())
-        );
+    for (const QString &path : paths) {
+        try {
+            manager.addTrack(path.toStdString());
+        } catch (const std::exception &e) {
+            // a warning per failed file
+            QMessageBox::warning(
+                this,
+                "Error",
+                QString("Failed to open file:\n%1\nReason:\n%2")
+                    .arg(path)
+                    .arg(e.what())
+            );
+        }
     }
+
+    refreshTrackList();
 }
+
 
 void MainWindow::saveSelectedTrack()
 {
+    // Require exactly one selected item
+    if (trackList->selectedItems().size() != 1) {
+        QMessageBox::information(
+            this,
+            "Selection error",
+            "Save one file at a time!"
+        );
+        return;
+    }
     int idx;
     if (!getSingleSelection(trackList, idx))
         return;
@@ -256,7 +281,7 @@ void MainWindow::saveMixRange()
 }
 
 
-//diting operations
+// diting operations
 
 void MainWindow::reverseTrack()
 {
@@ -265,6 +290,7 @@ void MainWindow::reverseTrack()
     if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
 
     manager.track(static_cast<std::size_t>(idx)).reverse();
+    refreshTrackList();
 }
 
 void MainWindow::speedTrack()
@@ -287,6 +313,7 @@ void MainWindow::speedTrack()
     if (!ok) return;
 
     manager.track(static_cast<std::size_t>(idx)).adjustSpeed(ratio);
+    refreshTrackList();
 }
 
 void MainWindow::speedResampleTrack()
@@ -309,6 +336,30 @@ void MainWindow::speedResampleTrack()
     if (!ok) return;
 
     manager.track(static_cast<std::size_t>(idx)).adjustSpeed_resample(ratio);
+    refreshTrackList();
+}
+
+void MainWindow::speedNoDistort()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx)) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
+
+    bool ok = false;
+    double ratio = QInputDialog::getDouble(
+        this,
+        "Change speed and resample",
+        "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
+        1.0,      // default
+        0.1,      // min
+        8.0,      // max
+        2,        // decimals
+        &ok
+    );
+    if (!ok) return;
+
+    manager.track(static_cast<std::size_t>(idx)).adjustSpeed_nodistort(ratio);
+    refreshTrackList();
 }
 
 void MainWindow::pitchTrack()
@@ -331,6 +382,7 @@ void MainWindow::pitchTrack()
     if (!ok) return;
 
     manager.track(static_cast<std::size_t>(idx)).repitch(semitones);
+    refreshTrackList();
 }
 
 void MainWindow::deleteTrack()

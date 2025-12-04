@@ -32,6 +32,7 @@ private:
     void reverseTrack();
     void speedTrack();
     void speedResampleTrack();
+    void speedNoDistort();
     void pitchTrack();
     void deleteTrack();
     void mergeTracks();
@@ -45,6 +46,7 @@ private:
     QPushButton *reverseBtn = nullptr;
     QPushButton *speedBtn   = nullptr;
     QPushButton *resampleBtn = nullptr;
+    QPushButton *nodistortBtn= nullptr;
     QPushButton *pitchBtn   = nullptr;
     QPushButton *deleteBtn  = nullptr;
     QPushButton *mergeBtn   = nullptr;
