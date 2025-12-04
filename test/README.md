@@ -18,14 +18,6 @@ Note: The folder containing the .wav files used for measurement testing is too b
 
 
 ## Time to combine increasing number of .wav files
-| Num WAV Files | Time (ms) |
-| ------------  | --------  |
-| **2**         | 19.4643   |
-| **5**         | 24.3264   |
-| **10**        | 32.1325   |
-| **20**        | 59.8828   |
-| **50**        | 403.936   |
-
 | Num WAV Files | `TrackManager::combineAll`  (ms) | SoX Library (ms) |
 | ------------- | -------------------------------- | ---------------- |
 | **2**         | 89.0743                          | 106.205          |
