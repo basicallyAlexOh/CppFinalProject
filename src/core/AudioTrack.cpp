@@ -124,9 +124,9 @@ void AudioTrack::adjustSpeed_resample(double ratio){
     adjust_speed_resample(R, ratio);
 } 
 
-void AudioTrack::repitch(double factor) {
-    adjust_pitch(L, factor);
-    adjust_pitch(R, factor);
+void AudioTrack::repitch(double semitones) {
+    adjust_pitch(L, semitones);
+    adjust_pitch(R, semitones);
 }
 
 void AudioTrack::normalize(double peak) {

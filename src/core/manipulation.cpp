@@ -1,7 +1,9 @@
 #include "core/manipulation.h"
+#include "util/dsp.h"
 #include <algorithm> //std::min
 #include <cmath> //std::lerp std::pow std::abs
 #include <limits> //std::numeric_limits
+
 
 void reverse_audio(std::vector<double>& audio)
 {
@@ -70,25 +72,5 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
 
 void adjust_pitch(std::vector<double>& audio, double semitones)
 {
-    //need a size to work with.
-    if (audio.size() < 2) {
-        return;
-    }
-
-    if (std::abs(semitones) < std::numeric_limits<double>::epsilon()) {
-        return; //semitones is machine episilon, nothing to do so return
-    }
-
-    //Convert semitones to a speed ratio:
-    //+12 semitones = 1 octave up = 2x frequency → 2x speed
-    constexpr double semitones_per_octave = 12.0;
-    const double ratio = std::pow(2.0, semitones / semitones_per_octave);
-
-    if (!std::isfinite(ratio) || ratio <= 0.0) {
-        return; //defensive: guard against nonsense inputs
-    }
-
-    //In this simple version, pitch shift is implemented
-    //as a speed change: pitch and duration change together.
-    adjust_speed_resample(audio, ratio);
+    audio = pv_pitch_shift_mono(audio, std::pow(2.0, semitones / 12.0));
 }

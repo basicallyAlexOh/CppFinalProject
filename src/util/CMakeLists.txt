@@ -13,6 +13,7 @@ add_library(UtilLayer
 target_link_libraries(UtilLayer
     PUBLIC
         sndfile
+        fftw3
 )
 
 target_include_directories(UtilLayer
