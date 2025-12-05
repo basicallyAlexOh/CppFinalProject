@@ -48,9 +48,8 @@ static std::vector<int> find_peaks(const std::vector<double>& mag) {
 
 // ---------------- phase vocoder (single channel) ----------------
 
-std::vector<double> phase_vocoder_pitch(const std::vector<double>& x, double pitch)
+std::vector<double> phase_vocoder_pitch(const std::vector<double>& x, double pitch, int N)
 {
-    const int N = 4096;
     const int Ha = N / 8;
     const double timeStretch = pitch;
     const int Hs = std::max(1, int(std::round(Ha * timeStretch)));
@@ -164,10 +163,10 @@ std::vector<double> phase_vocoder_pitch(const std::vector<double>& x, double pit
 std::pair<std::vector<double>, std::vector<double>>
 pv_pitch_shift_stereo(const std::vector<double>& L,
                       const std::vector<double>& R,
-                      double pitch)
+                      double pitch, int N)
 {
-    auto Ls = phase_vocoder_pitch(L, pitch);
-    auto Rs = phase_vocoder_pitch(R, pitch);
+    auto Ls = phase_vocoder_pitch(L, pitch, N);
+    auto Rs = phase_vocoder_pitch(R, pitch, N);
 
     // resample back to original length
     size_t target = L.size();
@@ -179,9 +178,9 @@ pv_pitch_shift_stereo(const std::vector<double>& L,
 }
 
 std::vector<double> pv_pitch_shift_mono(const std::vector<double>& audio,
-                      double pitch)
+                      double pitch, int N)
 {
-    auto in = phase_vocoder_pitch(audio, pitch);
+    auto in = phase_vocoder_pitch(audio, pitch, N);
 
     // resample back to original length
     size_t target = audio.size();
@@ -194,9 +193,8 @@ std::vector<double> pv_pitch_shift_mono(const std::vector<double>& audio,
 
 
 std::vector<double> phase_vocoder_speed(const std::vector<double>& x,
-                                         double speed)
+                                         double speed, int N)
 {
-    const int N = 4096;
     const int Ha = N / 8;
 
     // time-stretch factor: speed = playback speed
@@ -290,9 +288,9 @@ std::vector<double> phase_vocoder_speed(const std::vector<double>& x,
 }
 
 std::vector<double>
-pv_time_stretch_mono(const std::vector<double>& audio, double speed)
+pv_time_stretch_mono(const std::vector<double>& audio, double speed, int N)
 {
-    auto in = phase_vocoder_speed(audio, speed);
+    auto in = phase_vocoder_speed(audio, speed, N);
     // resample back to original size
     size_t target = audio.size();
     auto out = linear_resample(in, target);
@@ -303,10 +301,10 @@ pv_time_stretch_mono(const std::vector<double>& audio, double speed)
 std::pair<std::vector<double>, std::vector<double>>
 pv_time_stretch_stereo(const std::vector<double>& L,
                        const std::vector<double>& R,
-                       double speed)
+                       double speed, int N)
 {
-    auto Ls = phase_vocoder_speed(L, speed);
-    auto Rs = phase_vocoder_speed(R, speed);
+    auto Ls = phase_vocoder_speed(L, speed, N);
+    auto Rs = phase_vocoder_speed(R, speed, N);
 
     // resample back to original size
     size_t target = L.size();

@@ -5,17 +5,17 @@
 // #include <utility>
 
 std::vector<double> pv_pitch_shift_mono(const std::vector<double>& x,
-                                        double pitch);
+                                        double pitch, int N=4096);
 
 std::pair<std::vector<double>, std::vector<double>>
 pv_pitch_shift_stereo(const std::vector<double>& L,
                       const std::vector<double>& R,
-                      double pitch);
+                      double pitch, int N=4096);
 
-std::vector<double> pv_time_stretch_mono(const std::vector<double>& audio, double speed);
+std::vector<double> pv_time_stretch_mono(const std::vector<double>& audio, double speed, int N=4096);
 
 std::pair<std::vector<double>, std::vector<double>> pv_time_stretch_stereo(const std::vector<double>& L,
                        const std::vector<double>& R,
-                       double speed);
+                       double speed, int N=4096);
 
 #endif // PV_PITCH_SHIFT_H

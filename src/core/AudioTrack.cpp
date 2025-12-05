@@ -86,6 +86,9 @@ double AudioTrack::getStartTime() const
     return start_time;
 }
 
+std::pair<std::vector<double>, std::vector<double>> AudioTrack::getChannels() const {
+    return {L, R};
+}
 
 void AudioTrack::reset() {
     L = originalL;

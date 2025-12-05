@@ -38,6 +38,8 @@ class AudioTrack {
 
         double getStartTime() const;
 
+        std::pair<std::vector<double>, std::vector<double>> getChannels() const;
+
         void reset();
 
         void disable();
