@@ -28,7 +28,7 @@ static bool getSingleSelection(QListWidget *list, int &index)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , manager(44100)    //or whatever sample rate you want
+    , manager(44100) 
 {
     setWindowTitle("Simple DAW");
     setupUI();
@@ -45,14 +45,13 @@ void MainWindow::setupUI()
 
 void MainWindow::createMenus()
 {
-    fileMenu = menuBar()->addMenu("&File");
+    fileMenu = menuBar()->addMenu("&Menu");
 
     openAction      = new QAction("Open", this);
     saveTrackAction = new QAction("Save Selected Track", this);
     saveMixAction   = new QAction("Save Mix (All Tracks)", this);
     saveRange       = new QAction("Save Mix Range (All Tracks)", this);
     quitAction      = new QAction("Quit", this);
-
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveTrackAction);
     fileMenu->addAction(saveMixAction);
@@ -142,7 +141,7 @@ void MainWindow::openFile()
         try {
             manager.addTrack(path.toStdString());
         } catch (const std::exception &e) {
-            // a warning per failed file
+            // warning per failed file
             QMessageBox::warning(
                 this,
                 "Error",
@@ -308,9 +307,9 @@ void MainWindow::speedTrack()
         "Change speed",
         "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
         1.0,      // default
-        0.1,      // min
-        8.0,      // max
-        2,        // decimals
+        0.1,     // min
+        8.0,     // max
+        2,     // decimals
         &ok
     );
     if (!ok) return;
@@ -333,7 +332,7 @@ void MainWindow::speedResampleTrack()
         1.0,      // default
         0.1,      // min
         8.0,      // max
-        2,        // decimals
+        2,      // decimals
         &ok
     );
     if (!ok) return;
@@ -356,7 +355,7 @@ void MainWindow::speedNoDistort()
         1.0,      // default
         0.1,      // min
         8.0,      // max
-        2,        // decimals
+        2,      // decimals
         &ok
     );
     if (!ok) return;
@@ -379,7 +378,7 @@ void MainWindow::pitchTrack()
         0.0,     // default
         -24.0,   // min
         24.0,    // max
-        1,       // decimals
+        1,     // decimals
         &ok
     );
     if (!ok) return;

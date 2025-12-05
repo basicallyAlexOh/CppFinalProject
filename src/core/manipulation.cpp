@@ -1,8 +1,8 @@
 #include "core/manipulation.h"
 #include "util/dsp.h"
-#include <algorithm> //std::min
-#include <cmath> //std::lerp std::pow std::abs
-#include <limits> //std::numeric_limits
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 
 void reverse_audio(std::vector<double>& audio)
@@ -63,11 +63,11 @@ void adjust_speed_resample(std::vector<double>& audio, double ratio)
         const double s0 = audio[i0];
         const double s1 = audio[i0 + 1];
 
-        //Linear interpolation between s0 and s1
+        // Linear interpolation between s0 and s1
         out.push_back(std::lerp(s0, s1, frac));
     }
 
-    audio.swap(out); // in-place update for the caller
+    audio.swap(out); // in-place update for caller
 }
 
 void adjust_speed_nodistort(std::vector<double>& audio, double ratio)

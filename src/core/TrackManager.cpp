@@ -115,7 +115,7 @@ inline TrackManager::const_iterator TrackManager::end() const
 }
 
 
-size_t TrackManager::size() const
+std::size_t TrackManager::size() const
 {
     return tracks.size();
 }
@@ -145,8 +145,8 @@ std::unique_ptr<AudioTrack> TrackManager::combineAll() const
     std::span<double> r_span(r_buffer);
 
     for(const trackPtr& ptr : tracks){
-        size_t start_offset = round(ptr->getStartTime() * sample_rate); 
-        size_t len = ptr->numSamples();
+        std::size_t start_offset = round(ptr->getStartTime() * sample_rate); 
+        std::size_t len = ptr->numSamples();
         std::span<double> lsub = l_span.subspan(start_offset, len);
         std::span<double> rsub = r_span.subspan(start_offset, len);
         std::transform(ptr->L.begin(), ptr->L.end(), lsub.begin(), lsub.begin(), std::plus<>()); 
@@ -162,7 +162,7 @@ std::unique_ptr<AudioTrack> TrackManager::combineAll() const
 AudioTrack* TrackManager::combineTimeRange(double start, double end) const 
 {
     if(end < start) throw std::invalid_argument("end is after start");
-    size_t buffer_size = (end - start) * sample_rate + 1;
+    std::size_t buffer_size = (end - start) * sample_rate + 1;
 
     std::vector<double> l_buffer(buffer_size); 
     std::vector<double> r_buffer(buffer_size);
@@ -172,7 +172,7 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
 
         if(ptr->start_time > start) {
             // starts in middle
-            size_t start_offset = round((ptr->start_time - start) * sample_rate);
+            std::size_t start_offset = round((ptr->start_time - start) * sample_rate);
             if(ptr->start_time + ptr->duration() < end){
                 // track fully contained
                 //  ------
@@ -206,7 +206,7 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
             }
         } else {
             // starts before
-            size_t start_offset = round((start - ptr->start_time) * sample_rate);
+            std::size_t start_offset = round((start - ptr->start_time) * sample_rate);
 
             if(ptr->start_time + ptr->duration() < end){
 
