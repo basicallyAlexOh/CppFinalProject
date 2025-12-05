@@ -79,6 +79,8 @@ void MainWindow::createCentralWidget()
     pitchBtn   = new QPushButton("Pitch", this);
     deleteBtn  = new QPushButton("Delete", this);
     mergeBtn   = new QPushButton("Merge 2", this);
+    startTimeBtn  = new QPushButton("Set Start Time", this);
+
 
     auto *buttonLayout = new QVBoxLayout;
     buttonLayout->addWidget(reverseBtn);
@@ -88,6 +90,8 @@ void MainWindow::createCentralWidget()
     buttonLayout->addWidget(pitchBtn);
     buttonLayout->addWidget(deleteBtn);
     buttonLayout->addWidget(mergeBtn);
+    buttonLayout->addWidget(startTimeBtn);
+
     buttonLayout->addStretch();
 
     auto *mainLayout = new QHBoxLayout;
@@ -106,6 +110,7 @@ void MainWindow::createCentralWidget()
     connect(pitchBtn,   &QPushButton::clicked, this, &MainWindow::pitchTrack);
     connect(deleteBtn,  &QPushButton::clicked, this, &MainWindow::deleteTrack);
     connect(mergeBtn,   &QPushButton::clicked, this, &MainWindow::mergeTracks);
+    connect(startTimeBtn, &QPushButton::clicked, this, &MainWindow::setStartTime);
 }
 
 void MainWindow::refreshTrackList()
@@ -414,5 +419,29 @@ void MainWindow::mergeTracks()
 
     manager.mergeTrack(static_cast<std::size_t>(idx1),
                        static_cast<std::size_t>(idx2));
+    refreshTrackList();
+}
+
+
+void MainWindow::setStartTime()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx)) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
+
+    bool ok = false;
+    double ratio = QInputDialog::getDouble(
+        this,
+        "Set Start Time",
+        "Time (seconds)",
+        0.0,      // default
+        0.0,
+        2000.0,
+        2,
+        &ok
+    );
+    if (!ok) return;
+
+    manager.setStartTime(static_cast<std::size_t>(idx), ratio);
     refreshTrackList();
 }

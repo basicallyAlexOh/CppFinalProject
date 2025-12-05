@@ -102,9 +102,14 @@ void AudioTrack::disable(){
     enabled=false;
 }
 
+void AudioTrack::shift_start(double time){
+    if(time < 0) time = 0;
+    start_time = time;
+}
+
 double AudioTrack::duration() const 
 {
-    return start_time + static_cast<double>(L.size()) / sample_rate;
+    return static_cast<double>(L.size()) / sample_rate;
 }
 
 size_t AudioTrack::numSamples() const

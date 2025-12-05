@@ -36,6 +36,7 @@ private:
     void pitchTrack();
     void deleteTrack();
     void mergeTracks();
+    void setStartTime();
 
     // Data
     TrackManager manager;
@@ -50,6 +51,7 @@ private:
     QPushButton *pitchBtn   = nullptr;
     QPushButton *deleteBtn  = nullptr;
     QPushButton *mergeBtn   = nullptr;
+    QPushButton *startTimeBtn = nullptr;
 
     QWidget *central = nullptr;
 

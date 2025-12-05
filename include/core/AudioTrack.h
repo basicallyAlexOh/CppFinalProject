@@ -46,7 +46,6 @@ class AudioTrack {
 
         void enable();
 
-        // TODO: implement
         void shift_start(double time);
 
         double duration() const;
@@ -77,7 +76,6 @@ class AudioTrack {
         std::vector<double> L;
         std::vector<double> R;
         
-        // TODO: consider caching only if changed?
         std::vector<double> originalL;
         std::vector<double> originalR;
 };

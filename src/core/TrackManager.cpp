@@ -14,7 +14,7 @@ TrackManager::TrackManager(int sample_rate) :
 void TrackManager::addTrack(std::string filePath)
 {   
     try {
-        tracks.emplace_back(audioFromFile(filePath));
+        tracks.emplace_back(audioFromFile(filePath, sample_rate));
 
         std::filesystem::path p(filePath);
         names.push_back(p.stem().string());
@@ -94,6 +94,11 @@ double TrackManager::duration(std::size_t i) const
     return tracks.at(i)->duration();
 }
 
+void TrackManager::setStartTime(std::size_t i, double start)
+{
+    tracks[i]->shift_start(start);
+}
+
 inline TrackManager::iterator TrackManager::begin()
 {
     return tracks.begin(); 
@@ -113,7 +118,6 @@ inline TrackManager::const_iterator TrackManager::end() const
 {
     return tracks.end();
 }
-
 
 std::size_t TrackManager::size() const
 {
@@ -135,7 +139,7 @@ std::unique_ptr<AudioTrack> TrackManager::combineAll() const
     std::size_t buffer_size = 0;
     for(std::size_t i = 0; i < tracks.size(); ++i){
         auto start_ind = static_cast<std::size_t>(
-            std::round(tracks[i]->getStartTime() * sample_rate));
+            std::round(tracks[i]->getStartTime() * tracks[i]->sample_rate));
         buffer_size = std::max(buffer_size, start_ind + tracks[i]->numSamples());
     }
 
