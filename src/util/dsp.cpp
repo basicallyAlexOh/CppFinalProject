@@ -193,8 +193,10 @@ std::vector<double> pv_pitch_shift_mono(const std::vector<double>& audio,
 
 
 std::vector<double> phase_vocoder_speed(const std::vector<double>& x,
-                                         double speed, int N)
+                                         double ratio, int N)
 {
+
+    double speed = 1 / ratio;
     const int Ha = N / 8;
 
     // time-stretch factor: speed = playback speed
@@ -291,11 +293,7 @@ std::vector<double>
 pv_time_stretch_mono(const std::vector<double>& audio, double speed, int N)
 {
     auto in = phase_vocoder_speed(audio, speed, N);
-    // resample back to original size
-    size_t target = audio.size();
-    auto out = linear_resample(in, target);
-
-    return out;
+    return in;
 }
 
 std::pair<std::vector<double>, std::vector<double>>
