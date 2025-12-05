@@ -141,7 +141,7 @@ void MainWindow::openFile()
         try {
             manager.addTrack(path.toStdString());
         } catch (const std::exception &e) {
-            // warning per failed file
+            // warninog per failed file
             QMessageBox::warning(
                 this,
                 "Error",
@@ -307,9 +307,9 @@ void MainWindow::speedTrack()
         "Change speed",
         "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
         1.0,      // default
-        0.1,     // min
-        8.0,     // max
-        2,     // decimals
+        0.1,
+        8.0,
+        2,
         &ok
     );
     if (!ok) return;
@@ -330,9 +330,9 @@ void MainWindow::speedResampleTrack()
         "Change speed and resample",
         "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
         1.0,      // default
-        0.1,      // min
-        8.0,      // max
-        2,      // decimals
+        0.1,
+        8.0,
+        2,
         &ok
     );
     if (!ok) return;
@@ -353,9 +353,9 @@ void MainWindow::speedNoDistort()
         "Change speed and resample",
         "Speed ratio (e.g. 0.5 = half, 2.0 = double):",
         1.0,      // default
-        0.1,      // min
-        8.0,      // max
-        2,      // decimals
+        0.1,
+        8.0,
+        2,
         &ok
     );
     if (!ok) return;
@@ -376,9 +376,9 @@ void MainWindow::pitchTrack()
         "Change pitch",
         "Semitones (+12 = one octave up, -12 = down):",
         0.0,     // default
-        -24.0,   // min
-        24.0,    // max
-        1,     // decimals
+        -24.0,
+        24.0,
+        1,
         &ok
     );
     if (!ok) return;
