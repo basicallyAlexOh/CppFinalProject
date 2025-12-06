@@ -80,6 +80,8 @@ void MainWindow::createCentralWidget()
     deleteBtn  = new QPushButton("Delete", this);
     mergeBtn   = new QPushButton("Merge 2", this);
     startTimeBtn  = new QPushButton("Set Start Time", this);
+    revertBtn  = new QPushButton("Revert Changes", this);
+
 
 
     auto *buttonLayout = new QVBoxLayout;
@@ -91,6 +93,8 @@ void MainWindow::createCentralWidget()
     buttonLayout->addWidget(deleteBtn);
     buttonLayout->addWidget(mergeBtn);
     buttonLayout->addWidget(startTimeBtn);
+    buttonLayout->addWidget(revertBtn);
+
 
     buttonLayout->addStretch();
 
@@ -111,6 +115,7 @@ void MainWindow::createCentralWidget()
     connect(deleteBtn,  &QPushButton::clicked, this, &MainWindow::deleteTrack);
     connect(mergeBtn,   &QPushButton::clicked, this, &MainWindow::mergeTracks);
     connect(startTimeBtn, &QPushButton::clicked, this, &MainWindow::setStartTime);
+    connect(revertBtn, &QPushButton::clicked, this, &MainWindow::revertTrack);
 }
 
 void MainWindow::refreshTrackList()
@@ -443,5 +448,16 @@ void MainWindow::setStartTime()
     if (!ok) return;
 
     manager.setStartTime(static_cast<std::size_t>(idx), ratio);
+    refreshTrackList();
+}
+
+
+void MainWindow::revertTrack()
+{
+    int idx;
+    if (!getSingleSelection(trackList, idx)) return;
+    if (idx < 0 || static_cast<std::size_t>(idx) >= manager.size()) return;
+
+    manager.track(static_cast<std::size_t>(idx)).reset();
     refreshTrackList();
 }

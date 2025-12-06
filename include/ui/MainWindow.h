@@ -37,6 +37,7 @@ private:
     void deleteTrack();
     void mergeTracks();
     void setStartTime();
+    void revertTrack();
 
     // Data
     TrackManager manager;
@@ -52,6 +53,7 @@ private:
     QPushButton *deleteBtn  = nullptr;
     QPushButton *mergeBtn   = nullptr;
     QPushButton *startTimeBtn = nullptr;
+    QPushButton *revertBtn = nullptr;
 
     QWidget *central = nullptr;
 
