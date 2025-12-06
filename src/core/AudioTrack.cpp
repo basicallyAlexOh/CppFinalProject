@@ -146,20 +146,24 @@ void AudioTrack::repitch(double semitones) {
 void AudioTrack::normalize(double peak) {
     double maxAmp = 0.0;
 
+    double avg = std::accumulate(L.begin(), L.end(), 0.0) / L.size();
+    
     for (size_t i = 0; i < L.size(); ++i) {
+        if(i < L.size() / 10 || i > 9*(L.size()/10)) continue;
         maxAmp = std::max(maxAmp, std::abs(L[i]));
         maxAmp = std::max(maxAmp, std::abs(R[i]));
     }
-
+    if(maxAmp == 0.0) return;
     // Scale volume down if combined amplitude is too loud
-    if (maxAmp > peak) {
-        double scale = peak / maxAmp;
+    double scale = peak / maxAmp;
 
-        for (auto [l, r] : std::views::zip(L, R)) {
-            l *= scale;
-            r *= scale;
-        }
+    for (auto [l, r] : std::views::zip(L, R)) {
+        l *= scale;
+        r *= scale;
     }
+
+    std::transform(L.begin(), L.end(), L.begin(), [peak] (double x) {return std::min(peak, x);});
+    std::transform(R.begin(), R.end(), R.begin(), [peak] (double x) {return std::min(peak, x);});
 }
 
 void AudioTrack::saveToWav(const std::string& path) const {
