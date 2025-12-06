@@ -5,6 +5,7 @@
 #include <span>
 #include <algorithm>
 #include <filesystem>
+#include <execution>
 
 TrackManager::TrackManager(int sample_rate) :
     sample_rate(sample_rate)
@@ -69,11 +70,11 @@ void TrackManager::mergeTrack(size_t ind1, size_t ind2)
     std::span<double> r_track1 = r_span.subspan(0,track1_end+1);
     std::span<double> r_track2 = r_span.subspan(track2_start, tracks[ind2]->numSamples());
 
-    std::transform(l_track1.begin(), l_track1.end(), tracks[ind1]->L.begin(), l_track1.begin(), std::plus<>()); 
-    std::transform(l_track2.begin(), l_track2.end(), tracks[ind2]->L.begin(), l_track2.begin(), std::plus<>());
+    std::transform(std::execution::par, l_track1.begin(), l_track1.end(), tracks[ind1]->L.begin(), l_track1.begin(), std::plus<>()); 
+    std::transform(std::execution::par, l_track2.begin(), l_track2.end(), tracks[ind2]->L.begin(), l_track2.begin(), std::plus<>());
 
-    std::transform(r_track1.begin(), r_track1.end(), tracks[ind1]->R.begin(), r_track1.begin(), std::plus<>()); 
-    std::transform(r_track2.begin(), r_track2.end(), tracks[ind2]->R.begin(), r_track2.begin(), std::plus<>());
+    std::transform(std::execution::par, r_track1.begin(), r_track1.end(), tracks[ind1]->R.begin(), r_track1.begin(), std::plus<>()); 
+    std::transform(std::execution::par, r_track2.begin(), r_track2.end(), tracks[ind2]->R.begin(), r_track2.begin(), std::plus<>());
     
     // TODO: i think compiler does move semantics already in optimization, but wonder if we can explicity do it
     trackPtr tmp = std::make_unique<AudioTrack>(l_buffer, r_buffer, sample_rate);
@@ -153,8 +154,8 @@ std::unique_ptr<AudioTrack> TrackManager::combineAll() const
         std::size_t len = ptr->numSamples();
         std::span<double> lsub = l_span.subspan(start_offset, len);
         std::span<double> rsub = r_span.subspan(start_offset, len);
-        std::transform(ptr->L.begin(), ptr->L.end(), lsub.begin(), lsub.begin(), std::plus<>()); 
-        std::transform(ptr->R.begin(), ptr->R.end(), rsub.begin(), rsub.begin(), std::plus<>()); 
+        std::transform(std::execution::par, ptr->L.begin(), ptr->L.end(), lsub.begin(), lsub.begin(), std::plus<>()); 
+        std::transform(std::execution::par, ptr->R.begin(), ptr->R.end(), rsub.begin(), rsub.begin(), std::plus<>()); 
     }
 
     auto combined = std::make_unique<AudioTrack>(std::move(l_buffer), std::move(r_buffer), sample_rate);
@@ -188,8 +189,8 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
                 std::span<double> L_track_subspan(ptr->L.begin(), ptr->L.end());
                 std::span<double> R_track_subspan(ptr->R.begin(), ptr->R.end());
 
-                std::transform(L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
-                std::transform(R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
 
 
             } else{
@@ -203,8 +204,8 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
                 std::span<double> L_track_subspan(ptr->L.begin(), ptr->L.begin() + buffer_size - start_offset);
                 std::span<double> R_track_subspan(ptr->R.begin(), ptr->R.begin() + buffer_size - start_offset);
 
-                std::transform(L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
-                std::transform(R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
 
 
             }
@@ -224,8 +225,8 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
                 std::span<double> L_track_subspan(ptr->L.begin() + start_offset, ptr->L.end());
                 std::span<double> R_track_subspan(ptr->R.begin() + start_offset, ptr->R.end());
 
-                std::transform(L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
-                std::transform(R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
 
 
             } else{
@@ -239,8 +240,8 @@ AudioTrack* TrackManager::combineTimeRange(double start, double end) const
                 std::span<double> L_track_subspan(ptr->L.begin() + start_offset, ptr->L.begin() + buffer_size);
                 std::span<double> R_track_subspan(ptr->R.begin() + start_offset, ptr->R.begin() + buffer_size);
 
-                std::transform(L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
-                std::transform(R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, L_buffer_subspan.begin(), L_buffer_subspan.end(), L_track_subspan.begin(), L_buffer_subspan.begin(), std::plus<>()); 
+                std::transform(std::execution::par, R_buffer_subspan.begin(), R_buffer_subspan.end(), R_track_subspan.begin(), R_buffer_subspan.begin(), std::plus<>()); 
 
 
             }

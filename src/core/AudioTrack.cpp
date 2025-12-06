@@ -5,6 +5,7 @@
 #include <string>
 #include <ranges>
 #include <sndfile.hh>
+#include <execution>
 
 AudioTrack::AudioTrack() : 
     sample_rate(44100), 
@@ -34,7 +35,7 @@ AudioTrack::AudioTrack(std::vector<int16_t> audio, int sample_rate) :
     R(audio.begin(), audio.end()),
     start_time(0)
 {
-    std::transform(L.begin(), L.end(), L.begin(), [](int16_t x){return (double) x / 32768;});
+    std::transform(std::execution::par, L.begin(), L.end(), L.begin(), [](int16_t x){return (double) x / 32768;});
     R = L;
     originalL = L;
     originalR = R;
@@ -74,8 +75,8 @@ AudioTrack::AudioTrack(std::vector<int16_t> l, std::vector<int16_t> r, int sampl
     R(r.begin(), r.end()),
     start_time(0)
 {
-    std::transform(L.begin(), L.end(), L.begin(), [](int16_t x){return (double) x / 32768;});
-    std::transform(R.begin(), R.end(), R.begin(), [](int16_t x){return (double) x / 32768;});
+    std::transform(std::execution::par, L.begin(), L.end(), L.begin(), [](int16_t x){return (double) x / 32768;});
+    std::transform(std::execution::par, R.begin(), R.end(), R.begin(), [](int16_t x){return (double) x / 32768;});
     originalL = L;
     originalR = R;
 }
